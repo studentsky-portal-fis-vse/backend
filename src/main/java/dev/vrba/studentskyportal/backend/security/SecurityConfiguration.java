@@ -1,6 +1,5 @@
 package dev.vrba.studentskyportal.backend.security;
 
-import dev.vrba.studentskyportal.backend.security.filters.JwtAuthenticationFilter;
 import dev.vrba.studentskyportal.backend.security.filters.JwtAuthorizationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
@@ -48,8 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // Add JWT filters for authentication and authorization flow
-        http.addFilter(new JwtAuthenticationFilter(jwtTokenService))
-            .addFilter(new JwtAuthorizationFilter(
+        http.addFilter(new JwtAuthorizationFilter(
                     authenticationManager(),
                     jwtTokenService,
                     userDetailsService
