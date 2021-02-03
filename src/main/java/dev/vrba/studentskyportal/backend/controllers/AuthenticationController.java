@@ -34,6 +34,6 @@ public class AuthenticationController {
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.CREATED)
     public void registration(@Valid @RequestBody RegistrationRequest request) {
-
+        usersService.registerUser(request.getName(), request.getUsername(), request.getPassword());
     }
 }
