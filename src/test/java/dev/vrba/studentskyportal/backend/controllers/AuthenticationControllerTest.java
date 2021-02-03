@@ -307,11 +307,11 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 )
         );
 
-        mvc.perform(get("/api/some-authenticated-endpoint")).andExpect(status().isForbidden());
+        mvc.perform(get("/api/some-authenticated-endpoint"))
+                .andExpect(status().isForbidden());
 
-        mvc.perform(get("/api/some-authenticated-endpoint")
-                .header("Authorization", "Bearer thisIsNotAValidToken")
-        ) .andExpect(status().isForbidden());
+        mvc.perform(get("/api/some-authenticated-endpoint").header("Authorization", "Bearer thisIsNotAValidToken"))
+                .andExpect(status().isForbidden());
 
         final MvcResult result = mvc.perform(
                 post("/api/authentication/login")
@@ -335,6 +335,94 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .header("Authorization", "Bearer " + token)
         )
                 // Therefore authentication was successful
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testAnonymousUsersCannotAccessApi() throws Exception {
+        mvc.perform(get("/api/some-authenticated-endpoint"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testUsersCanAccessApiButNotTheAdminPart() throws Exception {
+        usersRepository.save(
+                new User(
+                        0,
+                        "Not me",
+                        usernameEncoder.encode("vrbj04"),
+                        passwordEncoder.encode("s3cr3tP4assw0rd"),
+                        true,
+                        false,
+                        false
+                )
+        );
+
+        final MvcResult loginRequest = mvc.perform(
+                post("/api/authentication/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectToJson(Map.of(
+                                "username", "vrbj04",
+                                "password", "s3cr3tP4assw0rd"
+                        )))
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("token").isNotEmpty())
+                .andExpect(jsonPath("token").isString())
+                .andReturn();
+
+        String content = loginRequest.getResponse().getContentAsString();
+        ObjectNode node = new ObjectMapper().readValue(content, ObjectNode.class);
+
+        String token = node.get("token").asText();
+
+        mvc.perform(get("/api/some-authenticated-endpoint")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/admin/some-admin-endpoint")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void testAdminCanAccessBothApiAndAdminPart() throws Exception {
+        usersRepository.save(
+                new User(
+                        0,
+                        "Not me",
+                        usernameEncoder.encode("vrbj04"),
+                        passwordEncoder.encode("s3cr3tP4assw0rd"),
+                        true,
+                        false,
+                        true
+                )
+        );
+
+        final MvcResult loginRequest = mvc.perform(
+                post("/api/authentication/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectToJson(Map.of(
+                                "username", "vrbj04",
+                                "password", "s3cr3tP4assw0rd"
+                        )))
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("token").isNotEmpty())
+                .andExpect(jsonPath("token").isString())
+                .andReturn();
+
+        String content = loginRequest.getResponse().getContentAsString();
+        ObjectNode node = new ObjectMapper().readValue(content, ObjectNode.class);
+
+        String token = node.get("token").asText();
+
+        mvc.perform(get("/api/some-authenticated-endpoint")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+
+        mvc.perform(get("/api/admin/some-admin-endpoint")
+                .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
     }
 }

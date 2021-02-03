@@ -30,8 +30,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(@NotNull HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/", "/api/authentication/**").permitAll()
-                .antMatchers("/api/**").hasRole("USER")
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/**").hasRole("USER")
                 .anyRequest().denyAll();
 
         // Append Cross-Origin-Resource-Sharing headers
