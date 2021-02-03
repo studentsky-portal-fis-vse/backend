@@ -20,7 +20,7 @@ public class UserDetailsService implements org.springframework.security.core.use
     private final UsersRepository repository;
 
     @Autowired
-    public UserDetailsService(@NotNull  UsersRepository repository) {
+    public UserDetailsService(@NotNull UsersRepository repository) {
         this.repository = repository;
     }
 
@@ -35,7 +35,7 @@ public class UserDetailsService implements org.springframework.security.core.use
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 final Collection<SimpleGrantedAuthority> authorities =  new ArrayList<>();
 
-                authorities.add(new SimpleGrantedAuthority("USER"));;
+                authorities.add(new SimpleGrantedAuthority("USER"));
 
                 if (user.isAdmin) {
                     authorities.add(new SimpleGrantedAuthority("ADMIN"));
