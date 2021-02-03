@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
 public class UsernameAlreadyRegisteredException extends RuntimeException {
     public UsernameAlreadyRegisteredException(@NotNull String username) {
-        super("Username " + username + "is already registered.");
+        super("Username " + username + " is already registered.");
     }
 }

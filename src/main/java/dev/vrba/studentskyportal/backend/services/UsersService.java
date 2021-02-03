@@ -3,17 +3,25 @@ package dev.vrba.studentskyportal.backend.services;
 import dev.vrba.studentskyportal.backend.entities.User;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.LoginException;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameAlreadyRegisteredException;
+import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameBlacklistedException;
 import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import dev.vrba.studentskyportal.backend.security.JwtTokenService;
 import dev.vrba.studentskyportal.backend.security.UsernameEncoder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UsersService {
@@ -22,19 +30,26 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenService jwtTokenService;
     private final AuthenticationManager authenticationManager;
+    private final List<String> blacklist;
 
     public UsersService(
             @NotNull UsersRepository repository,
             @NotNull UsernameEncoder usernameEncoder,
             @NotNull PasswordEncoder passwordEncoder,
             @NotNull JwtTokenService jwtTokenService,
-            @NotNull AuthenticationManager authenticationManager
-    ) {
+            @NotNull AuthenticationManager authenticationManager,
+            @Value("classpath:validation/blacklist.txt")
+            @NotNull Resource blacklist
+    ) throws IOException {
         this.repository = repository;
         this.usernameEncoder = usernameEncoder;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenService = jwtTokenService;
         this.authenticationManager = authenticationManager;
+
+        this.blacklist = Files
+                .lines(blacklist.getFile().toPath())
+                .collect(Collectors.toList());
     }
 
     public @Nullable User registerUser(@Nullable String name, @NotNull String username, @NotNull String password) {
@@ -49,7 +64,9 @@ public class UsersService {
             throw new UsernameAlreadyRegisteredException(username);
         }
 
-        // TODO: Implement blacklist
+        if (blacklist.contains(username)) {
+            throw new UsernameBlacklistedException(username);
+        }
 
         return repository.save(user);
     }
