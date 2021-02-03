@@ -21,7 +21,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
         String token = usersService.loginUserAndObtainToken(request.getUsername(), request.getPassword());
 
