@@ -1,11 +1,14 @@
 package dev.vrba.studentskyportal.backend.security.filters;
 
 import dev.vrba.studentskyportal.backend.security.JwtTokenService;
+import dev.vrba.studentskyportal.backend.security.UserDetailsService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -18,19 +21,26 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final JwtTokenService jwtTokenService;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, JwtTokenService jwtTokenService) {
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthorizationFilter(
+            @NotNull AuthenticationManager authenticationManager,
+            @NotNull JwtTokenService jwtTokenService,
+            @NotNull UserDetailsService userDetailsService
+    ) {
         super(authenticationManager);
 
         this.jwtTokenService = jwtTokenService;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         String header = request.getHeader("Authorization");
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.replaceFirst("Bearer ", "");
-            UsernamePasswordAuthenticationToken authentication = getAuthentication(token);
+        if (header != null && header.startsWith(JwtTokenService.TOKEN_PREFIX)) {
+            String token = header.replaceFirst(JwtTokenService.TOKEN_PREFIX, "");
+            Authentication authentication = getAuthentication(token);
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -38,12 +48,18 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         chain.doFilter(request, response);
     }
 
-    private @Nullable UsernamePasswordAuthenticationToken getAuthentication(@NotNull String token) {
+    private @Nullable Authentication getAuthentication(@NotNull String token) {
         try {
             String username = jwtTokenService.verifiedTokenUsername(token);
 
             if (username != null) {
-               return new UsernamePasswordAuthenticationToken(username, null);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                return new UsernamePasswordAuthenticationToken(
+                    userDetails.getUsername(),
+                    userDetails.getPassword(),
+                    userDetails.getAuthorities()
+                );
             }
         }
         catch (Exception exception) {

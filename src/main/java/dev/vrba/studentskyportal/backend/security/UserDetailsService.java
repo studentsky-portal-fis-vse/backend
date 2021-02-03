@@ -34,10 +34,10 @@ public class UserDetailsService implements org.springframework.security.core.use
             public Collection<? extends GrantedAuthority> getAuthorities() {
                 Collection<SimpleGrantedAuthority> authorities =  new ArrayList<>();
 
-                authorities.add(new SimpleGrantedAuthority("USER"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
                 if (user.isAdmin()) {
-                    authorities.add(new SimpleGrantedAuthority("ADMIN"));
+                    authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 }
 
                 return authorities;

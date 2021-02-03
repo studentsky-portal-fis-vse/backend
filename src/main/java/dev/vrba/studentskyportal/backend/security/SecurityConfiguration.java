@@ -49,7 +49,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // Add JWT filters for authentication and authorization flow
         http.addFilter(new JwtAuthenticationFilter(jwtTokenService))
-            .addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtTokenService));
+            .addFilter(new JwtAuthorizationFilter(
+                    authenticationManager(),
+                    jwtTokenService,
+                    userDetailsService
+            ));
     }
 
     @Bean

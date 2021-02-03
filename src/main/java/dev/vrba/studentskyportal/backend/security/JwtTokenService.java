@@ -14,8 +14,10 @@ import java.util.Date;
 @Service
 public class JwtTokenService {
 
+    public static final String TOKEN_PREFIX = "Bearer ";
+
     // Default token expiration is set to be 8 hours
-    private static final long TOKEN_EXPIRATION = 8 * 60 * 60 * 1000;
+    public static final long TOKEN_EXPIRATION = 8 * 60 * 60 * 1000;
 
     private final String secret;
 
@@ -24,10 +26,18 @@ public class JwtTokenService {
     }
 
     public @NotNull String generateToken(@NotNull Authentication authentication) {
-        final User user = (User) authentication.getPrincipal();
+        String username;
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof User) {
+            username = ((User) principal).getUsername();
+        }
+        else {
+            username = authentication.getName();
+        }
 
         return JWT.create()
-                .withSubject(user.getUsername())
+                .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
                 .sign(Algorithm.HMAC256(secret));
     }
