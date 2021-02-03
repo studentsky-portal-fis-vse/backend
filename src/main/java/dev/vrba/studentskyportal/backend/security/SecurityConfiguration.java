@@ -1,5 +1,7 @@
 package dev.vrba.studentskyportal.backend.security;
 
+import dev.vrba.studentskyportal.backend.security.filters.JwtAuthenticationFilter;
+import dev.vrba.studentskyportal.backend.security.filters.JwtAuthorizationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,8 +18,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfiguration(@NotNull UserDetailsService userDetailsService) {
+    private final JwtTokenService jwtTokenService;
+
+    public SecurityConfiguration(@NotNull UserDetailsService userDetailsService, @NotNull JwtTokenService jwtTokenService) {
         this.userDetailsService = userDetailsService;
+        this.jwtTokenService = jwtTokenService;
     }
 
     @Override
@@ -36,10 +41,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         // Setup the user details service connected to PostgreSQL backend
-        http.userDetailsService(this.userDetailsService);
+        http.userDetailsService(userDetailsService);
 
         // Disable storing session and appending the JSESSIONID cookie as JWT is stateless by design
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        // Add JWT filters for authentication and authorization flow
+        http.addFilter(new JwtAuthenticationFilter(jwtTokenService))
+            .addFilter(new JwtAuthorizationFilter(authenticationManager(), jwtTokenService));
     }
 
     @Bean
