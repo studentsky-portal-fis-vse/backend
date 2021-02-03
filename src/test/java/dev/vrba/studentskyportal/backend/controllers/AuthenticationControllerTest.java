@@ -140,9 +140,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
     }
 
     @Test
-    // username = verified, password = verified
     public void usersCannotRegisterUsernameMoreThanOnce() throws Exception {
-
         usersRepository.save(
                 new User(
                     "Already registered",
