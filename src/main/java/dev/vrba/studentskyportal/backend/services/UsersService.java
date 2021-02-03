@@ -72,7 +72,10 @@ public class UsersService {
     }
 
     public @Nullable String loginUserAndObtainToken(@NotNull String username, @NotNull String password) {
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                usernameEncoder.encode(username),
+                password
+        );
         SecurityContext context = SecurityContextHolder.getContext();
 
         try {

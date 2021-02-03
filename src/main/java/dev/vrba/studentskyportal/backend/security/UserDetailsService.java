@@ -26,14 +26,13 @@ public class UserDetailsService implements org.springframework.security.core.use
 
     @Override
     public UserDetails loadUserByUsername(@NotNull String username) throws UsernameNotFoundException {
-
-        final Optional<User> account = repository.findByUsername(username);
-        final User user = account.orElseThrow(() -> new UsernameNotFoundException("User not found for the given username"));
+        Optional<User> account = repository.findByUsername(username);
+        User user = account.orElseThrow(() -> new UsernameNotFoundException("User not found for the given username"));
 
         return new UserDetails() {
             @Override
             public Collection<? extends GrantedAuthority> getAuthorities() {
-                final Collection<SimpleGrantedAuthority> authorities =  new ArrayList<>();
+                Collection<SimpleGrantedAuthority> authorities =  new ArrayList<>();
 
                 authorities.add(new SimpleGrantedAuthority("USER"));
 
@@ -56,7 +55,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
             @Override
             public boolean isAccountNonExpired() {
-                return false;
+                return true;
             }
 
             @Override
@@ -66,7 +65,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
             @Override
             public boolean isCredentialsNonExpired() {
-                return false;
+                return true;
             }
 
             @Override
