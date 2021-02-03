@@ -27,7 +27,7 @@ public class JwtTokenService {
         final User user = (User) authentication.getPrincipal();
 
         return JWT.create()
-                .withSubject(user.username)
+                .withSubject(user.getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))
                 .sign(Algorithm.HMAC256(secret));
     }

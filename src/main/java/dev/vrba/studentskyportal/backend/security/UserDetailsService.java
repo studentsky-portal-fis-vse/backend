@@ -37,7 +37,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
                 authorities.add(new SimpleGrantedAuthority("USER"));
 
-                if (user.isAdmin) {
+                if (user.isAdmin()) {
                     authorities.add(new SimpleGrantedAuthority("ADMIN"));
                 }
 
@@ -61,7 +61,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
             @Override
             public boolean isAccountNonLocked() {
-                return user.isVerified;
+                return user.isVerified();
             }
 
             @Override
@@ -71,7 +71,7 @@ public class UserDetailsService implements org.springframework.security.core.use
 
             @Override
             public boolean isEnabled() {
-                return !user.isBanned;
+                return !user.isBanned();
             }
         };
     }

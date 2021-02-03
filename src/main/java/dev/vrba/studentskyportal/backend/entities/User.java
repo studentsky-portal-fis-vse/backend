@@ -3,30 +3,40 @@ package dev.vrba.studentskyportal.backend.entities;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "users") // USER is a reserved keyword in psql
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public long id;
+    private long id;
 
     @Column(nullable = true)
-    public String name = null;
+    private String name = null;
 
     @Column(unique = true)
-    public String username;
+    private String username;
 
-    public String password;
+    private String password;
 
-    public boolean isVerified = false;
+    private boolean isVerified = false;
 
-    public boolean isBanned = false;
+    private boolean isBanned = false;
 
-    public boolean isAdmin = false;
+    private boolean isAdmin = false;
+
+    public User(@Nullable String name, @NotNull String username, @NotNull String password) {
+        // This will be overridden by Hibernate internals
+        this.id = 0;
+        this.name = name;
+        this.username = username;
+        this.password = password;
+    }
 }

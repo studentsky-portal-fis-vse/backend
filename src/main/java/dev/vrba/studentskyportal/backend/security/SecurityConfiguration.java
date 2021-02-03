@@ -4,6 +4,7 @@ import dev.vrba.studentskyportal.backend.security.filters.JwtAuthenticationFilte
 import dev.vrba.studentskyportal.backend.security.filters.JwtAuthorizationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -59,5 +60,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public UsernameEncoder usernameEncoder() throws NoSuchAlgorithmException {
         return new UsernameEncoder("SHA-256");
+    }
+
+    @Bean
+    @Override
+    protected AuthenticationManager authenticationManager() throws Exception {
+        return super.authenticationManager();
     }
 }
