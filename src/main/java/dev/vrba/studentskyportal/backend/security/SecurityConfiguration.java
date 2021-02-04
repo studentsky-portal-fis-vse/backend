@@ -28,7 +28,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(@NotNull HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/api/authentication/**").permitAll()
+                .antMatchers(
+                        "/",
+                        "/api-docs",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/api/authentication/**"
+                ).permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 .antMatchers("/api/**").hasRole("USER")
                 .anyRequest().denyAll();
