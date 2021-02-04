@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -25,10 +24,7 @@ public class AuthenticationController {
     public Map<String, String> login(@Valid @RequestBody LoginRequest request) {
         String token = usersService.loginUserAndObtainToken(request.getUsername(), request.getPassword());
 
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-
-        return response;
+        return Map.of("token", token);
     }
 
     @PostMapping("/registration")

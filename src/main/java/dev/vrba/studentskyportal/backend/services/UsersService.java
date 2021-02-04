@@ -71,7 +71,7 @@ public class UsersService {
         return repository.save(user);
     }
 
-    public @Nullable String loginUserAndObtainToken(@NotNull String username, @NotNull String password) {
+    public @NotNull String loginUserAndObtainToken(@NotNull String username, @NotNull String password) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 usernameEncoder.encode(username),
                 password
