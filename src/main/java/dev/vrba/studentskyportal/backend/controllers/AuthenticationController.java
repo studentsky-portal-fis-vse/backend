@@ -1,8 +1,12 @@
 package dev.vrba.studentskyportal.backend.controllers;
 
+import dev.vrba.studentskyportal.backend.entities.User;
+import dev.vrba.studentskyportal.backend.entities.UserVerification;
 import dev.vrba.studentskyportal.backend.requests.authentication.LoginRequest;
 import dev.vrba.studentskyportal.backend.requests.authentication.RegistrationRequest;
+import dev.vrba.studentskyportal.backend.services.UserVerificationService;
 import dev.vrba.studentskyportal.backend.services.UsersService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +19,12 @@ public class AuthenticationController {
 
     private final UsersService usersService;
 
-    public AuthenticationController(UsersService usersService) {
+    private final UserVerificationService verificationService;
+
+    @Autowired
+    public AuthenticationController(UsersService usersService, UserVerificationService verificationService) {
         this.usersService = usersService;
+        this.verificationService = verificationService;
     }
 
     @PostMapping("/login")
@@ -30,6 +38,15 @@ public class AuthenticationController {
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.CREATED)
     public void registration(@Valid @RequestBody RegistrationRequest request) {
-        usersService.registerUser(request.getName(), request.getUsername(), request.getPassword());
+        User user = usersService.registerUser(request.getName(), request.getUsername(), request.getPassword());
+        UserVerification verification = verificationService.createVerificationForUser(user);
+
+        // TODO: Send mail with the verification code to username@vse.cz
+    }
+
+    @PostMapping("/verification")
+    @ResponseStatus(HttpStatus.OK)
+    public void verification() {
+
     }
 }

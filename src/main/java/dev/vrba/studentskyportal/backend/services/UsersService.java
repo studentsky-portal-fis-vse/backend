@@ -52,7 +52,7 @@ public class UsersService {
                 .collect(Collectors.toList());
     }
 
-    public @Nullable User registerUser(@Nullable String name, @NotNull String username, @NotNull String password) {
+    public @NotNull User registerUser(@Nullable String name, @NotNull String username, @NotNull String password) {
         User user = new User(
             name,
             usernameEncoder.encode(username),
