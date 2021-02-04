@@ -50,6 +50,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCanRegisterWithoutName() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,10 +61,18 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         )))
         )
                 .andExpect(status().isCreated());
+
+        assertEquals(1L, usersRepository.count());
+        assertEquals(
+                usernameEncoder.encode("vrbj04"),
+                usersRepository.findAll().iterator().next().getUsername()
+        );
     }
 
     @Test
     public void usersCanRegisterWithName() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -73,10 +83,18 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         )))
         )
                 .andExpect(status().isCreated());
+
+        assertEquals(1L, usersRepository.count());
+        assertEquals(
+                usernameEncoder.encode("vrbj04"),
+                usersRepository.findAll().iterator().next().getUsername()
+        );
     }
 
     @Test
     public void usersCannotRegisterWithoutUsername() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,10 +104,14 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         )))
         )
                 .andExpect(status().isBadRequest());
+
+        assertEquals(0L, usersRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithInvalidUsername() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,10 +122,14 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         )))
         )
                 .andExpect(status().isBadRequest());
+
+        assertEquals(0L, usersRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithBlacklistedUsername() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         MvcResult result = mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -116,10 +142,14 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andReturn();
 
         assertTrue(result.getResolvedException() instanceof UsernameBlacklistedException);
+
+        assertEquals(0L, usersRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithInvalidPassword() throws Exception {
+        assertEquals(0L, usersRepository.count());
+
         mvc.perform(
                 post("/api/authentication/registration")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,6 +171,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         )))
         )
                 .andExpect(status().isBadRequest());
+
+        assertEquals(0L, usersRepository.count());
     }
 
     @Test
@@ -152,6 +184,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         passwordEncoder.encode("secretPassword")
                 )
         );
+
+        assertEquals(1L, usersRepository.count());
 
         MvcResult result = mvc.perform(
                 post("/api/authentication/registration")
@@ -166,6 +200,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andReturn();
 
         assertTrue(result.getResolvedException() instanceof UsernameAlreadyRegisteredException);
+
+        assertEquals(1L, usersRepository.count());
     }
 
     @Test
