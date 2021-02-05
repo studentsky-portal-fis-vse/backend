@@ -22,9 +22,7 @@ public class DiscordVerificationsService {
         Optional<DiscordVerification> verification = verificationsRepository.findByUserId(user.getId());
 
         return verification.orElseGet(() -> {
-            DiscordVerification newVerification = new DiscordVerification(
-                    user, RandomString.make(32), null
-            );
+            DiscordVerification newVerification = new DiscordVerification(user, RandomString.make(32), null);
 
             return verificationsRepository.save(newVerification);
         });
