@@ -501,6 +501,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
         String username = usernameEncoder.encode("suckmyrick");
 
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         User user = usersRepository.findByUsername(username).get();
         UserVerification verification = userVerificationsRepository.findAll().iterator().next();
 
@@ -509,6 +510,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
         mvc.perform(get("/api/authentication/verification/" + verification.getCode()))
                 .andExpect(status().isOk());
 
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         User user2 = usersRepository.findByUsername(username).get();
 
         assertEquals(user2.getId(), verification.getUser().getId());
@@ -532,6 +534,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
         String username = usernameEncoder.encode("suckmyrick");
 
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         User user = usersRepository.findByUsername(username).get();
 
         assertFalse(user.isVerified());
@@ -539,6 +542,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
         mvc.perform(get("/api/authentication/verification/this_is_not_my_code_bruh_lidl"))
                 .andExpect(status().isNotFound());
 
+        @SuppressWarnings("OptionalGetWithoutIsPresent")
         User user2 = usersRepository.findByUsername(username).get();
 
         assertFalse(user2.isVerified());
