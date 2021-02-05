@@ -15,8 +15,8 @@ public class JwtTokenService {
 
     public static final String TOKEN_PREFIX = "Bearer ";
 
-    // Default token expiration is set to be 8 hours
-    public static final long TOKEN_EXPIRATION = 8 * 60 * 60 * 1000;
+    // Default token expiration is set to be 15 minutes
+    public static final long TOKEN_EXPIRATION = 15 * 60 * 1000;
 
     private final String secret;
 
