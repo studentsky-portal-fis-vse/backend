@@ -2,7 +2,6 @@ package dev.vrba.studentskyportal.backend.controllers;
 
 import dev.vrba.studentskyportal.backend.entities.User;
 import dev.vrba.studentskyportal.backend.entities.UserVerification;
-import dev.vrba.studentskyportal.backend.exceptions.authentication.LoginException;
 import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import dev.vrba.studentskyportal.backend.requests.authentication.LoginRequest;
 import dev.vrba.studentskyportal.backend.requests.authentication.RegistrationRequest;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/authentication")
@@ -81,9 +79,6 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("isAuthenticated() && hasRole(\"USER\")")
     public User currentUser(Authentication authentication) {
-        String username = (String) authentication.getPrincipal();
-        Optional<User> user = usersRepository.findByUsername(username);
-
-        return user.orElseThrow(() -> new LoginException("Username not found."));
+        return (User) authentication.getPrincipal();
     }
 }

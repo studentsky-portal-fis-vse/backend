@@ -1,5 +1,6 @@
 package dev.vrba.studentskyportal.backend.security;
 
+import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import dev.vrba.studentskyportal.backend.security.filters.JwtAuthorizationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +23,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenService jwtTokenService;
 
-    public SecurityConfiguration(@NotNull UserDetailsService userDetailsService, @NotNull JwtTokenService jwtTokenService) {
+    private final UsersRepository usersRepository;
+
+    public SecurityConfiguration(
+            UserDetailsService userDetailsService,
+            JwtTokenService jwtTokenService,
+            UsersRepository usersRepository
+    ) {
         this.userDetailsService = userDetailsService;
         this.jwtTokenService = jwtTokenService;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -58,7 +66,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.addFilter(new JwtAuthorizationFilter(
                     authenticationManager(),
                     jwtTokenService,
-                    userDetailsService
+                    userDetailsService,
+                    usersRepository
             ));
     }
 
