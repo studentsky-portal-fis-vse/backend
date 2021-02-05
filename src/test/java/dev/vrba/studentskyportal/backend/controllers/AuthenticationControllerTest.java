@@ -14,11 +14,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import sibApi.TransactionalEmailsApi;
 
 import java.util.Map;
 
@@ -47,6 +49,9 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Autowired
     private UserVerificationsRepository userVerificationsRepository;
+
+    @MockBean
+    private TransactionalEmailsApi emailsApi;
 
     @BeforeEach
     public void wipeUsersTable() {
@@ -548,5 +553,4 @@ class AuthenticationControllerTest extends BaseControllerTest {
         assertFalse(user2.isVerified());
         assertEquals(1L, userVerificationsRepository.count());
     }
-
 }
