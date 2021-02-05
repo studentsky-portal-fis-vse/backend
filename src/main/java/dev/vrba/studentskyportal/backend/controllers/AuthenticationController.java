@@ -2,7 +2,6 @@ package dev.vrba.studentskyportal.backend.controllers;
 
 import dev.vrba.studentskyportal.backend.entities.User;
 import dev.vrba.studentskyportal.backend.entities.UserVerification;
-import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import dev.vrba.studentskyportal.backend.requests.authentication.LoginRequest;
 import dev.vrba.studentskyportal.backend.requests.authentication.RegistrationRequest;
 import dev.vrba.studentskyportal.backend.security.JwtTokenService;
@@ -27,20 +26,16 @@ public class AuthenticationController {
 
     private final UserVerificationService verificationService;
 
-    private final UsersRepository usersRepository;
-
     private final JwtTokenService jwtTokenService;
 
     @Autowired
     public AuthenticationController(
             UsersService usersService,
             UserVerificationService verificationService,
-            UsersRepository usersRepository,
             JwtTokenService jwtTokenService
     ) {
         this.usersService = usersService;
         this.verificationService = verificationService;
-        this.usersRepository = usersRepository;
         this.jwtTokenService = jwtTokenService;
     }
 
