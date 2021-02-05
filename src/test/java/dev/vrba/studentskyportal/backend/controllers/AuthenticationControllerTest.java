@@ -602,4 +602,48 @@ class AuthenticationControllerTest extends BaseControllerTest {
         mvc.perform(post("/api/authentication/refresh-token"))
             .andExpect(status().isForbidden());
     }
+
+    @Test
+    public void authenticatedTokenCanRetrieveUserInformation(@Value("${security.jwt.secret}") String secret) throws Exception {
+        User user = usersRepository.save(
+                new User(
+                        0,
+                        "Not me",
+                        usernameEncoder.encode("vrbj04"),
+                        passwordEncoder.encode("s3cr3tP4assw0rd"),
+                        true,
+                        false,
+                        false
+                )
+        );
+
+        final String token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 60 * 1000))
+                .sign(Algorithm.HMAC256(secret));
+
+        mvc.perform(get("/api/authentication/current-user")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("username").isNotEmpty())
+                .andExpect(jsonPath("username").isString())
+                .andExpect(jsonPath("admin").isNotEmpty())
+                .andExpect(jsonPath("admin").isBoolean())
+                .andExpect(jsonPath("banned").isNotEmpty())
+                .andExpect(jsonPath("banned").isBoolean())
+                .andExpect(jsonPath("verified").isNotEmpty())
+                .andExpect(jsonPath("verified").isBoolean());
+    }
+
+    @Test
+    public void usersCannotRetrieveUserInformationWithoutToken() throws Exception {
+        mvc.perform(get("/api/authentication/current-user")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer thisisnotavalidtoken"))
+            .andExpect(status().isForbidden());
+
+        mvc.perform(get("/api/authentication/current-user").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
 }

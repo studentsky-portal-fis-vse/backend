@@ -77,7 +77,7 @@ public class AuthenticationController {
         verificationService.resolveVerificationByCode(code);
     }
 
-    @PostMapping("/current-user")
+    @GetMapping("/current-user")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("isAuthenticated() && hasRole(\"USER\")")
     public User currentUser(Authentication authentication) {
