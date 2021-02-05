@@ -1,5 +1,6 @@
 package dev.vrba.studentskyportal.backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,13 +17,16 @@ import javax.persistence.*;
 public class DiscordVerification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonIgnore
     private long id;
 
     @Nullable
     @Column(nullable = true)
+    @JsonIgnore
     private String discordId = null;
 
     @OneToOne(cascade = CascadeType.DETACH)
+    @JsonIgnore
     private User user;
 
     @Column(nullable = false, unique = true)
