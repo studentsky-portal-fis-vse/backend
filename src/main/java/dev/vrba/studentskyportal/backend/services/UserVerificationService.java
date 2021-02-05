@@ -3,6 +3,7 @@ package dev.vrba.studentskyportal.backend.services;
 import dev.vrba.studentskyportal.backend.entities.User;
 import dev.vrba.studentskyportal.backend.entities.UserVerification;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UserVerificationNotFoundException;
+import dev.vrba.studentskyportal.backend.exceptions.authentication.VerificationEmailDeliveryException;
 import dev.vrba.studentskyportal.backend.repositories.UserVerificationsRepository;
 import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import net.bytebuddy.utility.RandomString;
@@ -16,6 +17,7 @@ import sibModel.SendSmtpEmailSender;
 import sibModel.SendSmtpEmailTo;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class UserVerificationService {
@@ -79,8 +81,8 @@ public class UserVerificationService {
             emailsApi.sendTransacEmail(payload);
         }
         catch (ApiException exception) {
-            // Map exception to a runtime exception which halts the current request processing
-            throw new RuntimeException(exception);
+            Logger.getLogger(this.getClass().getName()).severe(exception.getMessage());
+            throw new VerificationEmailDeliveryException("There was an error during sending the verification email.");
         }
     }
 }
