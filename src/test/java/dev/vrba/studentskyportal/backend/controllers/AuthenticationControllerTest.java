@@ -3,8 +3,10 @@ package dev.vrba.studentskyportal.backend.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.vrba.studentskyportal.backend.entities.User;
+import dev.vrba.studentskyportal.backend.entities.UserVerification;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameAlreadyRegisteredException;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameBlacklistedException;
+import dev.vrba.studentskyportal.backend.repositories.UserVerificationsRepository;
 import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import dev.vrba.studentskyportal.backend.security.UsernameEncoder;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,14 +45,19 @@ class AuthenticationControllerTest extends BaseControllerTest {
     @Autowired
     private UsersRepository usersRepository;
 
+    @Autowired
+    private UserVerificationsRepository userVerificationsRepository;
+
     @BeforeEach
     public void wipeUsersTable() {
+        userVerificationsRepository.deleteAll();
         usersRepository.deleteAll();
     }
 
     @Test
     public void usersCanRegisterWithoutName() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         mvc.perform(
                 post("/api/authentication/registration")
@@ -63,6 +70,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andExpect(status().isCreated());
 
         assertEquals(1L, usersRepository.count());
+        assertEquals(1L, userVerificationsRepository.count());
         assertEquals(
                 usernameEncoder.encode("vrbj04"),
                 usersRepository.findAll().iterator().next().getUsername()
@@ -72,6 +80,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
     @Test
     public void usersCanRegisterWithName() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         mvc.perform(
                 post("/api/authentication/registration")
@@ -85,15 +94,23 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andExpect(status().isCreated());
 
         assertEquals(1L, usersRepository.count());
+        assertEquals(1L, userVerificationsRepository.count());
         assertEquals(
                 usernameEncoder.encode("vrbj04"),
                 usersRepository.findAll().iterator().next().getUsername()
         );
+
+        assertEquals(
+                usersRepository.findAll().iterator().next(),
+                userVerificationsRepository.findAll().iterator().next().getUser()
+        );
+
     }
 
     @Test
     public void usersCannotRegisterWithoutUsername() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         mvc.perform(
                 post("/api/authentication/registration")
@@ -106,11 +123,13 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andExpect(status().isBadRequest());
 
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithInvalidUsername() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         mvc.perform(
                 post("/api/authentication/registration")
@@ -124,11 +143,13 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andExpect(status().isBadRequest());
 
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithBlacklistedUsername() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         MvcResult result = mvc.perform(
                 post("/api/authentication/registration")
@@ -144,11 +165,13 @@ class AuthenticationControllerTest extends BaseControllerTest {
         assertTrue(result.getResolvedException() instanceof UsernameBlacklistedException);
 
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
     }
 
     @Test
     public void usersCannotRegisterWithInvalidPassword() throws Exception {
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
 
         mvc.perform(
                 post("/api/authentication/registration")
@@ -173,6 +196,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .andExpect(status().isBadRequest());
 
         assertEquals(0L, usersRepository.count());
+        assertEquals(0L, userVerificationsRepository.count());
     }
 
     @Test
@@ -375,13 +399,13 @@ class AuthenticationControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void testAnonymousUsersCannotAccessApi() throws Exception {
+    public void anonymousUsersCannotAccessApi() throws Exception {
         mvc.perform(get("/api/some-authenticated-endpoint"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    public void testUsersCanAccessApiButNotTheAdminPart() throws Exception {
+    public void usersCanAccessApiButNotTheAdminPart() throws Exception {
         usersRepository.save(
                 new User(
                         0,
@@ -422,7 +446,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
     }
 
     @Test
-    public void testAdminCanAccessBothApiAndAdminPart() throws Exception {
+    public void adminCanAccessBothApiAndAdminPart() throws Exception {
         usersRepository.save(
                 new User(
                         0,
@@ -461,4 +485,64 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    public void usersCanVerifyByClickingTheirActivationLink() throws Exception {
+        // Register a new user
+        mvc.perform(post("/api/authentication/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectToJson(Map.of(
+                        "name", "Pickle Rick",
+                        "username", "suckmyrick",
+                        "password", "shabalabadubdub"
+                )))
+        )
+                .andExpect(status().isCreated());
+
+        String username = usernameEncoder.encode("suckmyrick");
+
+        User user = usersRepository.findByUsername(username).get();
+        UserVerification verification = userVerificationsRepository.findAll().iterator().next();
+
+        assertFalse(user.isVerified());
+
+        mvc.perform(get("/api/authentication/verification/" + verification.getCode()))
+                .andExpect(status().isOk());
+
+        User user2 = usersRepository.findByUsername(username).get();
+
+        assertEquals(user2.getId(), verification.getUser().getId());
+        assertTrue(user2.isVerified());
+
+        assertEquals(0L, userVerificationsRepository.count());
+    }
+
+    @Test
+    public void usersCannotVerifyByClickingInvalidLink() throws Exception {
+        // Register a new user
+        mvc.perform(post("/api/authentication/registration")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectToJson(Map.of(
+                        "name", "Pickle Rick",
+                        "username", "suckmyrick",
+                        "password", "shabalabadubdub"
+                )))
+        )
+                .andExpect(status().isCreated());
+
+        String username = usernameEncoder.encode("suckmyrick");
+
+        User user = usersRepository.findByUsername(username).get();
+
+        assertFalse(user.isVerified());
+
+        mvc.perform(get("/api/authentication/verification/this_is_not_my_code_bruh_lidl"))
+                .andExpect(status().isNotFound());
+
+        User user2 = usersRepository.findByUsername(username).get();
+
+        assertFalse(user2.isVerified());
+        assertEquals(1L, userVerificationsRepository.count());
+    }
+
 }

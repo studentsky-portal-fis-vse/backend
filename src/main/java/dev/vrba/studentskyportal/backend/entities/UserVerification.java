@@ -8,16 +8,17 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.*;
 
 @Data
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "user_verifications")
 public class UserVerification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.DETACH)
     private User user;
 
     @Column(unique = true, nullable = false)

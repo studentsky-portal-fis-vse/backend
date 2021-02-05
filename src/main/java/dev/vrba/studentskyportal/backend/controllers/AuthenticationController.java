@@ -6,6 +6,7 @@ import dev.vrba.studentskyportal.backend.requests.authentication.LoginRequest;
 import dev.vrba.studentskyportal.backend.requests.authentication.RegistrationRequest;
 import dev.vrba.studentskyportal.backend.services.UserVerificationService;
 import dev.vrba.studentskyportal.backend.services.UsersService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -44,9 +45,9 @@ public class AuthenticationController {
         // TODO: Send mail with the verification code to username@vse.cz
     }
 
-    @PostMapping("/verification")
+    @GetMapping("/verification/{code}")
     @ResponseStatus(HttpStatus.OK)
-    public void verification() {
-
+    public void verification(@PathVariable @NotNull String code) {
+        verificationService.resolveVerificationByCode(code);
     }
 }
