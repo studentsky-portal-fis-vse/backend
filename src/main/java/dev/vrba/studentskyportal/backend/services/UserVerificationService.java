@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import sendinblue.ApiException;
 import sibApi.TransactionalEmailsApi;
 import sibModel.SendSmtpEmail;
+import sibModel.SendSmtpEmailSender;
 import sibModel.SendSmtpEmailTo;
 
 import java.util.List;
@@ -56,12 +57,17 @@ public class UserVerificationService {
     public void sendVerificationEmail(@NotNull String email, @NotNull UserVerification verification) {
         SendSmtpEmail payload = new SendSmtpEmail();
         SendSmtpEmailTo recipient = new SendSmtpEmailTo();
+        SendSmtpEmailSender sender = new SendSmtpEmailSender();
 
         recipient.setEmail(email);
+
+        sender.setName("Studentský portál FIS VŠE");
+        sender.setEmail("bot@portal.fis-vse.cz");
 
         // TODO: update link to match client side api/routing
         String link = "https://portal.fis-vse.cz/app#/verification/" + verification.getCode();
 
+        payload.setSender(sender);
         payload.setTo(List.of(recipient));
 
         // TODO: make this a template or something

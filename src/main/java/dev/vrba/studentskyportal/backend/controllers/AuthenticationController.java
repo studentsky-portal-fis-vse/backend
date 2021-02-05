@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.Map;
 
@@ -38,6 +39,7 @@ public class AuthenticationController {
 
     @PostMapping("/registration")
     @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
     public void registration(@Valid @RequestBody RegistrationRequest request) {
         User user = usersService.registerUser(request.getName(), request.getUsername(), request.getPassword());
         UserVerification verification = verificationService.createVerificationForUser(user);
