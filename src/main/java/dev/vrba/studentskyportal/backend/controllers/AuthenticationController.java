@@ -42,7 +42,7 @@ public class AuthenticationController {
         User user = usersService.registerUser(request.getName(), request.getUsername(), request.getPassword());
         UserVerification verification = verificationService.createVerificationForUser(user);
 
-        // TODO: Send mail with the verification code to username@vse.cz
+        verificationService.sendVerificationEmail(request.getUsername() + "@vse.cz", verification);
     }
 
     @GetMapping("/verification/{code}")
