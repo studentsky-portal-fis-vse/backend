@@ -1,5 +1,7 @@
 package dev.vrba.studentskyportal.backend.controllers;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.vrba.studentskyportal.backend.entities.User;
@@ -12,6 +14,7 @@ import dev.vrba.studentskyportal.backend.security.UsernameEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import sibApi.TransactionalEmailsApi;
 
+import java.util.Date;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -552,5 +556,50 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
         assertFalse(user2.isVerified());
         assertEquals(1L, userVerificationsRepository.count());
+    }
+
+    @Test
+    public void usersCanRefreshTheirTokenWhenUsingSignedRequest(@Value("${security.jwt.secret}") String secret) throws Exception {
+        User user = usersRepository.save(
+                new User(
+                        0,
+                        "Not me",
+                        usernameEncoder.encode("vrbj04"),
+                        passwordEncoder.encode("s3cr3tP4assw0rd"),
+                        true,
+                        false,
+                        false
+                )
+        );
+
+        final Date originalExpiration = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
+
+        final String token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(originalExpiration) // Token expiring after 5 minutes
+                .sign(Algorithm.HMAC256(secret));
+
+        final MvcResult refreshRequest = mvc.perform(
+            post("/api/authentication/refresh-token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("token").isNotEmpty())
+                .andExpect(jsonPath("token").isString())
+                .andReturn();
+
+        String refreshContent = refreshRequest.getResponse().getContentAsString();
+        ObjectNode refreshNode = new ObjectMapper().readValue(refreshContent, ObjectNode.class);
+
+        String refreshedToken = refreshNode.get("token").asText();
+
+        assertTrue(JWT.decode(refreshedToken).getExpiresAt().after(originalExpiration));
+    }
+
+    @Test
+    public void usersCannotRefreshTokenWithoutSignedRequest() throws Exception {
+        mvc.perform(post("/api/authentication/refresh-token"))
+            .andExpect(status().isForbidden());
     }
 }
