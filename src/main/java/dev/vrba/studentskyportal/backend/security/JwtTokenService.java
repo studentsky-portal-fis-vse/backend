@@ -2,6 +2,7 @@ package dev.vrba.studentskyportal.backend.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import dev.vrba.studentskyportal.backend.entities.User;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,14 @@ public class JwtTokenService {
     }
 
     public @NotNull String generateToken(@NotNull Authentication authentication) {
-        String username = authentication.getName();
+        return generateToken(authentication.getName());
+    }
 
+    public @NotNull String generateToken(@NotNull User user) {
+        return generateToken(user.getUsername());
+    }
+
+    public @NotNull String generateToken(@NotNull String username) {
         return JWT.create()
                 .withSubject(username)
                 .withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION))

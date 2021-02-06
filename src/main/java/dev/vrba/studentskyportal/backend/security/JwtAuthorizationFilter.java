@@ -1,7 +1,7 @@
-package dev.vrba.studentskyportal.backend.security.filters;
+package dev.vrba.studentskyportal.backend.security;
 
-import dev.vrba.studentskyportal.backend.security.JwtTokenService;
-import dev.vrba.studentskyportal.backend.security.UserDetailsService;
+import dev.vrba.studentskyportal.backend.entities.User;
+import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Optional;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -23,15 +24,19 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private final UserDetailsService userDetailsService;
 
+    private final UsersRepository usersRepository;
+
     public JwtAuthorizationFilter(
             @NotNull AuthenticationManager authenticationManager,
             @NotNull JwtTokenService jwtTokenService,
-            @NotNull UserDetailsService userDetailsService
+            @NotNull UserDetailsService userDetailsService,
+            @NotNull UsersRepository usersRepository
     ) {
         super(authenticationManager);
 
         this.jwtTokenService = jwtTokenService;
         this.userDetailsService = userDetailsService;
+        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -54,12 +59,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
             if (username != null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                Optional<User> user = usersRepository.findByUsername(username);
 
-                return new UsernamePasswordAuthenticationToken(
-                    userDetails.getUsername(),
-                    userDetails.getPassword(),
-                    userDetails.getAuthorities()
-                );
+                if (user.isPresent()) {
+                    return new UsernamePasswordAuthenticationToken(
+                            user.get(),
+                            userDetails,
+                            userDetails.getAuthorities()
+                    );
+                }
             }
         }
         catch (Exception exception) {
