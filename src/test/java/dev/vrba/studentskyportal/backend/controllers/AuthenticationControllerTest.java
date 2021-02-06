@@ -9,8 +9,6 @@ import dev.vrba.studentskyportal.backend.entities.UserVerification;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameAlreadyRegisteredException;
 import dev.vrba.studentskyportal.backend.exceptions.authentication.UsernameBlacklistedException;
 import dev.vrba.studentskyportal.backend.repositories.UserVerificationsRepository;
-import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
-import dev.vrba.studentskyportal.backend.security.UsernameEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import sibApi.TransactionalEmailsApi;
 
@@ -38,18 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class AuthenticationControllerTest extends BaseControllerTest {
-
-    @Autowired
-    private MockMvc mvc;
-
-    @Autowired
-    private UsernameEncoder usernameEncoder;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UsersRepository usersRepository;
 
     @Autowired
     private UserVerificationsRepository userVerificationsRepository;
@@ -210,13 +194,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCannotRegisterUsernameMoreThanOnce() throws Exception {
-        usersRepository.save(
-                new User(
-                        "Already registered",
-                        usernameEncoder.encode("verified"),
-                        passwordEncoder.encode("secretPassword")
-                )
-        );
+        createUser("Already registered", "verified", "secretPassword");
 
         assertEquals(1L, usersRepository.count());
 
@@ -306,17 +284,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCannotLoginToNonVerifiedAccount() throws Exception {
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        false,
-                        false,
-                        false
-                )
-        );
+        createUser("Not me", "vrbj04", "s3cr3tPassw0rd", false, false, false);
 
         MvcResult result = mvc.perform(
                 post("/api/authentication/login")
@@ -335,17 +303,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCannotLoginToBannedAccount() throws Exception {
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        true,
-                        false
-                )
-        );
+        createUser("Bad boy", "vrbj04", "s3cr3tPassw0rd", true, false, true);
 
         MvcResult result = mvc.perform(
                 post("/api/authentication/login")
@@ -364,17 +322,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCanLoginToVerifiedAccount() throws Exception {
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        false,
-                        false
-                )
-        );
+        createUser("Good boy", "vrbj04", "s3cr3tP4ssw0rd", true, false, false);
 
         mvc.perform(get("/api/some-authenticated-endpoint"))
                 .andExpect(status().isForbidden());
@@ -387,7 +335,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
                                 "username", "vrbj04",
-                                "password", "s3cr3tP4assw0rd"
+                                "password", "s3cr3tP4ssw0rd"
                         )))
         )
                 .andExpect(status().isOk())
@@ -415,35 +363,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCanAccessApiButNotTheAdminPart() throws Exception {
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        false,
-                        false
-                )
-        );
-
-        final MvcResult loginRequest = mvc.perform(
-                post("/api/authentication/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectToJson(Map.of(
-                                "username", "vrbj04",
-                                "password", "s3cr3tP4assw0rd"
-                        )))
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("token").isNotEmpty())
-                .andExpect(jsonPath("token").isString())
-                .andReturn();
-
-        String content = loginRequest.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(content, ObjectNode.class);
-
-        String token = node.get("token").asText();
+        User user = createUser("Not me", "vrbj04", "s3cretP4assw0rd", true, false, false);
+        String token = validJwtTokenFor(user);
 
         mvc.perform(get("/api/some-authenticated-endpoint")
                 .header("Authorization", "Bearer " + token))
@@ -456,35 +377,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void adminCanAccessBothApiAndAdminPart() throws Exception {
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        false,
-                        true
-                )
-        );
-
-        final MvcResult loginRequest = mvc.perform(
-                post("/api/authentication/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectToJson(Map.of(
-                                "username", "vrbj04",
-                                "password", "s3cr3tP4assw0rd"
-                        )))
-        )
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("token").isNotEmpty())
-                .andExpect(jsonPath("token").isString())
-                .andReturn();
-
-        String content = loginRequest.getResponse().getContentAsString();
-        ObjectNode node = new ObjectMapper().readValue(content, ObjectNode.class);
-
-        String token = node.get("token").asText();
+        User admin = createUser("Not me", "vrbj04", "s3cr3tP4assw0rd", true, true, false);
+        String token = validJwtTokenFor(admin);
 
         mvc.perform(get("/api/some-authenticated-endpoint")
                 .header("Authorization", "Bearer " + token))
