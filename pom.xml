@@ -13,6 +13,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>backend</name>
     <description>Backend API for student portal of FIS VSE</description>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>Backend API</name>
+            <url>https://maven.pkg.github.com/studentsky-portal-fis-vse/backend</url>
+        </repository>
+    </distributionManagement>
     <properties>
         <java.version>11</java.version>
     </properties>
