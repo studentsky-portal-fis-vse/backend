@@ -1,7 +1,6 @@
 package dev.vrba.studentskyportal.backend.security;
 
 import dev.vrba.studentskyportal.backend.repositories.UsersRepository;
-import dev.vrba.studentskyportal.backend.security.filters.JwtAuthorizationFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
