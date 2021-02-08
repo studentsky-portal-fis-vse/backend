@@ -1,5 +1,10 @@
 # Backend pro studentský portál
 
+![GitHub Repo stars](https://img.shields.io/github/stars/studentsky-portal-fis-vse/backend?style=for-the-badge)
+![GitHub contributors](https://img.shields.io/github/contributors/studentsky-portal-fis-vse/backend?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/studentsky-portal-fis-vse/backend?style=for-the-badge)
+![GitHub last commit](https://img.shields.io/github/last-commit/studentsky-portal-fis-vse/backend?style=for-the-badge)
+
 ## Setup
 1. Stáhnout javu 11 (JDK)
 2. Naklonovat repozitář
