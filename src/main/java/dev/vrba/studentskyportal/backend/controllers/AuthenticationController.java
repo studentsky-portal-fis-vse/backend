@@ -64,7 +64,7 @@ public class AuthenticationController {
         verificationService.sendVerificationEmail(request.getUsername() + "@vse.cz", verification);
     }
 
-    @GetMapping("/verification/{code}")
+    @PostMapping("/verification/{code}")
     @ResponseStatus(HttpStatus.OK)
     public void verification(@PathVariable @NotNull String code) {
         verificationService.resolveVerificationByCode(code);

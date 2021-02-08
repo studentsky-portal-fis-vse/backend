@@ -410,7 +410,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
         assertFalse(user.isVerified());
 
-        mvc.perform(get("/api/authentication/verification/" + verification.getCode()))
+        mvc.perform(post("/api/authentication/verification/" + verification.getCode()))
                 .andExpect(status().isOk());
 
         @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -442,7 +442,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
         assertFalse(user.isVerified());
 
-        mvc.perform(get("/api/authentication/verification/this_is_not_my_code_bruh_lidl"))
+        mvc.perform(post("/api/authentication/verification/this_is_not_my_code_bruh_lidl"))
                 .andExpect(status().isNotFound());
 
         @SuppressWarnings("OptionalGetWithoutIsPresent")
