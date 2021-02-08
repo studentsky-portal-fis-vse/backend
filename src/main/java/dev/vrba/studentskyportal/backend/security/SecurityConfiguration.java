@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.List;
 
 @EnableWebSecurity
@@ -80,8 +81,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public UsernameEncoder usernameEncoder() throws NoSuchAlgorithmException {
-        return new UsernameEncoder("SHA-256");
+    public UsernameEncoder usernameEncoder() throws NoSuchAlgorithmException, NoSuchProviderException {
+        return new UsernameEncoder();
     }
 
     @Bean
