@@ -489,6 +489,11 @@ class AuthenticationControllerTest extends BaseControllerTest {
         String refreshedToken = refreshNode.get("token").asText();
 
         assertTrue(JWT.decode(refreshedToken).getExpiresAt().after(originalExpiration));
+
+        mvc.perform(get("/api/authentication/current-user")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + refreshedToken))
+            .andExpect(status().isOk());
     }
 
     @Test
