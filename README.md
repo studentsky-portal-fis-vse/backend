@@ -22,7 +22,7 @@ setx SPRING_PROFILES_ACTIVE development /M
 ./mvnw clean package
 
 # Windows?
-mwnw.cmd clean package
+.\mvnw.cmd clean package
 ```
 
 6. Samotné spuštění aplikace
