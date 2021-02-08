@@ -50,7 +50,9 @@ public class AuthenticationController {
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("isAuthenticated() && hasRole(\"USER\")")
     public Map<String, String> refreshToken(Authentication authentication) {
-        String token = jwtTokenService.generateToken(authentication);
+        User user = (User) authentication.getPrincipal();
+        String token = jwtTokenService.generateToken(user.getUsername());
+
         return Map.of("token", token);
     }
 
