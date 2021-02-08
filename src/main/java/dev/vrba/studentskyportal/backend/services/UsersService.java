@@ -9,8 +9,7 @@ import dev.vrba.studentskyportal.backend.security.JwtTokenService;
 import dev.vrba.studentskyportal.backend.security.UsernameEncoder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -18,9 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,17 +37,18 @@ public class UsersService {
             @NotNull PasswordEncoder passwordEncoder,
             @NotNull JwtTokenService jwtTokenService,
             @NotNull AuthenticationManager authenticationManager,
-            @Value("classpath:validation/blacklist.txt")
-            @NotNull Resource blacklist
-    ) throws IOException {
+            @NotNull ResourceLoader loader
+    ) {
         this.repository = repository;
         this.usernameEncoder = usernameEncoder;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenService = jwtTokenService;
         this.authenticationManager = authenticationManager;
 
-        this.blacklist = Files
-                .lines(blacklist.getFile().toPath())
+        InputStream blacklist = getClass().getResourceAsStream("/blacklist.txt");
+        this.blacklist = new Scanner(blacklist)
+                .useDelimiter("\n")
+                .tokens()
                 .collect(Collectors.toList());
     }
 
