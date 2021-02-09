@@ -36,7 +36,7 @@ public class DiscordServersController {
     public DiscordServer update(@PathVariable long id, @Valid @RequestBody DiscordServer server) {
         return repository.findById(id)
                 .map(entry -> {
-                    entry.setEmbed(server.getEmbed());
+                    entry.setGuildId(server.getGuildId());
                     entry.setInvite(server.getInvite());
 
                     return repository.save(entry);

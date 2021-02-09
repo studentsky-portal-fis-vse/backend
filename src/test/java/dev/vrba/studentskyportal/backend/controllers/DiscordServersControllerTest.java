@@ -44,7 +44,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                 post("/api/admin/discord-servers")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectToJson(Map.of(
-                           "embed", "https://discord.com/mycoolembed.png",
+                           "guildId", "https://discord.com/mycoolembed.png",
                             "invite", "https://discord.gg/xddlmao"
                     )))
         )
@@ -68,7 +68,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                 put("/api/admin/discord-servers/" + server.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "embed", "https://discord.com/anothercoolembed.png",
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -78,7 +78,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals("https://discord.com/mycoolembed.png", refreshed.getEmbed());
+        assertEquals("https://discord.com/mycoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/lmaoooo", refreshed.getInvite());
     }
 
@@ -120,7 +120,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "embed", "https://discord.com/mycoolembed.png",
+                                "guildId", "https://discord.com/mycoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -148,7 +148,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "embed", "https://discord.com/anothercoolembed.png",
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -158,7 +158,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals("https://discord.com/mycoolembed.png", refreshed.getEmbed());
+        assertEquals("https://discord.com/mycoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/lmaoooo", refreshed.getInvite());
     }
 
@@ -204,7 +204,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "embed", "https://discord.com/mycoolembed.png",
+                                "guildId", "https://discord.com/mycoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -213,7 +213,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
         DiscordServer server = repository.findAll().iterator().next();
 
         assertEquals(1L, repository.count());
-        assertEquals("https://discord.com/mycoolembed.png", server.getEmbed());
+        assertEquals("https://discord.com/mycoolembed.png", server.getGuildId());
         assertEquals("https://discord.gg/xddlmao", server.getInvite());
     }
 
@@ -236,7 +236,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "embed", "https://discord.com/anothercoolembed.png",
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -246,7 +246,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals("https://discord.com/anothercoolembed.png", refreshed.getEmbed());
+        assertEquals("https://discord.com/anothercoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/xddlmao", refreshed.getInvite());
     }
 
