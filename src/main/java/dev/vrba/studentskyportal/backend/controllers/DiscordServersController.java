@@ -27,8 +27,8 @@ public class DiscordServersController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/admin/discord-servers")
-    public void create(@Valid @RequestBody DiscordServer server) {
-        repository.save(server);
+    public DiscordServer create(@Valid @RequestBody DiscordServer server) {
+        return repository.save(server);
     }
 
     @ResponseStatus(HttpStatus.OK)
