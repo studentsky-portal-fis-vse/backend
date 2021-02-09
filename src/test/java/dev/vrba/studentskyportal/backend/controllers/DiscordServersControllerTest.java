@@ -57,7 +57,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
     public void anonymousUsersCannotUpdateDiscordServers() throws Exception {
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );
@@ -68,7 +68,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                 put("/api/admin/discord-servers/" + server.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "guildId", 100_000_000,
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -78,7 +78,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals(42069, refreshed.getGuildId());
+        assertEquals("https://discord.com/mycoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/lmaoooo", refreshed.getInvite());
     }
 
@@ -86,7 +86,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
     public void anonymousUsersCannotDeleteDiscordServers() throws Exception {
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );
@@ -136,7 +136,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );
@@ -148,7 +148,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "guildId", 420_420_420,
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -158,7 +158,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals(42069, refreshed.getGuildId());
+        assertEquals("https://discord.com/mycoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/lmaoooo", refreshed.getInvite());
     }
 
@@ -169,7 +169,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );
@@ -204,7 +204,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "guildId", 42069,
+                                "guildId", "https://discord.com/mycoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -213,7 +213,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
         DiscordServer server = repository.findAll().iterator().next();
 
         assertEquals(1L, repository.count());
-        assertEquals(42069, server.getGuildId());
+        assertEquals("https://discord.com/mycoolembed.png", server.getGuildId());
         assertEquals("https://discord.gg/xddlmao", server.getInvite());
     }
 
@@ -224,7 +224,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );
@@ -236,7 +236,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectToJson(Map.of(
-                                "guildId", 420_420_420,
+                                "guildId", "https://discord.com/anothercoolembed.png",
                                 "invite", "https://discord.gg/xddlmao"
                         )))
         )
@@ -246,7 +246,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer refreshed = repository.findAll().iterator().next();
 
-        assertEquals(420_420_420, refreshed.getGuildId());
+        assertEquals("https://discord.com/anothercoolembed.png", refreshed.getGuildId());
         assertEquals("https://discord.gg/xddlmao", refreshed.getInvite());
     }
 
@@ -257,7 +257,7 @@ class DiscordServersControllerTest extends BaseControllerTest {
 
         DiscordServer server = repository.save(
                 new DiscordServer(
-                        42069,
+                        "https://discord.com/mycoolembed.png",
                         "https://discord.gg/lmaoooo"
                 )
         );

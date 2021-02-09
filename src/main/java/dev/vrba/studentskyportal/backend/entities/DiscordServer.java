@@ -18,12 +18,12 @@ public class DiscordServer {
     private long id;
 
     @Column(unique = true)
-    private long guildId;
+    private String guildId;
 
     @Column(unique = true)
     private String invite;
 
-    public DiscordServer(long guildId, @NotNull String invite) {
+    public DiscordServer(@NotNull String guildId, @NotNull String invite) {
         this.guildId = guildId;
         this.invite = invite;
     }
