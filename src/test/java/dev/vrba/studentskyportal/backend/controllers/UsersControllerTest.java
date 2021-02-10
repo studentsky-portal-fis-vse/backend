@@ -322,4 +322,23 @@ public class UsersControllerTest extends BaseControllerTest {
         assertNotEquals(another.getName(), reloaded.getName());
         assertNotEquals(another.getPassword(), reloaded.getPassword());
     }
+
+    @Test
+    public void adminsCannotBanOtherAdmins() throws Exception {
+        User user = createUser("user", "username", "password", true, true, false);
+        User another = createUser("another", "another", "password", true, true, false);
+
+        String token = validJwtTokenFor(user);
+
+        assertFalse(another.isBanned());
+
+        mvc.perform(
+                post("/api/users/" + another.getId() + "/ban")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnprocessableEntity());
+
+        User reloaded = usersRepository.findByUsername(another.getUsername()).orElseThrow();
+
+        assertFalse(reloaded.isBanned());
+    }
 }
