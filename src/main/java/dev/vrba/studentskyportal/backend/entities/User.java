@@ -17,7 +17,6 @@ import javax.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
     private long id;
 
     @Column(nullable = true)
@@ -34,6 +33,9 @@ public class User {
     private boolean isBanned = false;
 
     private boolean isAdmin = false;
+
+    @OneToOne(cascade = CascadeType.REMOVE)
+    private UserVerification verification = null;
 
     public User(@Nullable String name, @NotNull String username, @NotNull String password) {
         // This will be overridden by Hibernate internals
