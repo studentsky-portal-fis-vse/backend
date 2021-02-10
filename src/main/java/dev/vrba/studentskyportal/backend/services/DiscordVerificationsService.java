@@ -15,14 +15,15 @@ public class DiscordVerificationsService {
     private final DiscordVerificationsRepository verificationsRepository;
 
     public DiscordVerificationsService(DiscordVerificationsRepository verificationsRepository) {
-        this.verificationsRepository  = verificationsRepository;
+        this.verificationsRepository = verificationsRepository;
     }
 
-    public @NotNull DiscordVerification generateVerificationForUser(@NotNull User user) {
+    public @NotNull DiscordVerification getVerificationForUser(@NotNull User user) {
         Optional<DiscordVerification> verification = verificationsRepository.findByUserId(user.getId());
 
         return verification.orElseGet(() -> {
-            DiscordVerification newVerification = new DiscordVerification(user, RandomString.make(32), null);
+            String code = RandomString.make(32);
+            DiscordVerification newVerification = new DiscordVerification(user, code, null);
 
             return verificationsRepository.save(newVerification);
         });

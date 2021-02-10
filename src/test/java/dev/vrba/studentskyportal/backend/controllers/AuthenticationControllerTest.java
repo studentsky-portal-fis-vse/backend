@@ -255,17 +255,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
         assertNotNull(result.getResolvedException());
         assertEquals(result.getResolvedException().getMessage(), "Bad credentials");
 
-        usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true, // User needs to be verified
-                        false,
-                        false
-                )
-        );
+        createUser("Not me", "vrbj04", "s3cr3tP4asswo0rd", true, false, false);
 
         MvcResult result2 = mvc.perform(
                 post("/api/authentication/login")
@@ -454,17 +444,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     @Test
     public void usersCanRefreshTheirTokenWhenUsingSignedRequest(@Value("${security.jwt.secret}") String secret) throws Exception {
-        User user = usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        false,
-                        false
-                )
-        );
+
+        User user = createUser("Not me", "vrbj04", "s3cr3tP4assw0rd", true, false, false);
 
         final Date originalExpiration = new Date(System.currentTimeMillis() + 5 * 60 * 1000);
 
@@ -474,9 +455,9 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .sign(Algorithm.HMAC256(secret));
 
         final MvcResult refreshRequest = mvc.perform(
-            post("/api/authentication/refresh-token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
+                post("/api/authentication/refresh-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
         )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("token").isNotEmpty())
@@ -491,30 +472,20 @@ class AuthenticationControllerTest extends BaseControllerTest {
         assertTrue(JWT.decode(refreshedToken).getExpiresAt().after(originalExpiration));
 
         mvc.perform(get("/api/authentication/current-user")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + refreshedToken))
-            .andExpect(status().isOk());
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + refreshedToken))
+                .andExpect(status().isOk());
     }
 
     @Test
     public void usersCannotRefreshTokenWithoutSignedRequest() throws Exception {
         mvc.perform(post("/api/authentication/refresh-token"))
-            .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
     }
 
     @Test
     public void authenticatedTokenCanRetrieveUserInformation(@Value("${security.jwt.secret}") String secret) throws Exception {
-        User user = usersRepository.save(
-                new User(
-                        0,
-                        "Not me",
-                        usernameEncoder.encode("vrbj04"),
-                        passwordEncoder.encode("s3cr3tP4assw0rd"),
-                        true,
-                        false,
-                        false
-                )
-        );
+        User user = createUser("Not me", "vrbj04", "s3cr3tP4assw0rd", true, false, false);
 
         final String token = JWT.create()
                 .withSubject(user.getUsername())
@@ -522,8 +493,8 @@ class AuthenticationControllerTest extends BaseControllerTest {
                 .sign(Algorithm.HMAC256(secret));
 
         mvc.perform(get("/api/authentication/current-user")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("Authorization", "Bearer " + token))
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("username").isNotEmpty())
                 .andExpect(jsonPath("username").isString())
@@ -540,7 +511,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
         mvc.perform(get("/api/authentication/current-user")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer thisisnotavalidtoken"))
-            .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden());
 
         mvc.perform(get("/api/authentication/current-user").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());

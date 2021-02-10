@@ -23,6 +23,6 @@ public class DiscordVerificationsController {
 
     @GetMapping("/verification")
     public DiscordVerification verification(Authentication authentication) {
-        return service.generateVerificationForUser((User) authentication.getPrincipal());
+        return service.getVerificationForUser((User) authentication.getPrincipal());
     }
 }
