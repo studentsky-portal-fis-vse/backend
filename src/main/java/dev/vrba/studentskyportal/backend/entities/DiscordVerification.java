@@ -25,8 +25,9 @@ public class DiscordVerification {
     @JsonIgnore
     private String discordId = null;
 
-    @OneToOne(cascade = CascadeType.DETACH)
     @JsonIgnore
+    @OneToOne(cascade = CascadeType.DETACH)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Column(nullable = false, unique = true)

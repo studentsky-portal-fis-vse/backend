@@ -34,8 +34,11 @@ public class User {
 
     private boolean isAdmin = false;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     private UserVerification verification = null;
+
+    @OneToOne(cascade = CascadeType.DETACH, orphanRemoval = true)
+    private DiscordVerification discordVerification = null;
 
     public User(@Nullable String name, @NotNull String username, @NotNull String password) {
         // This will be overridden by Hibernate internals
