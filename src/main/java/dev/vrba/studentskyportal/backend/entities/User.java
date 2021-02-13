@@ -10,8 +10,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.persistence.*;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "users") // USER is a reserved keyword in psql
 public class User {

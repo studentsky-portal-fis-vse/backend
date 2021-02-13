@@ -18,8 +18,8 @@ public class UserVerification {
     private long id;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id")
+    @OneToOne(cascade = CascadeType.DETACH)
     private User user;
 
     @Column(unique = true, nullable = false)

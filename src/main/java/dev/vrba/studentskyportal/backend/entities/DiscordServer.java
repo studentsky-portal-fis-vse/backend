@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.*;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "discord_servers")
-@NoArgsConstructor
-@AllArgsConstructor
 public class DiscordServer {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
